@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain Demo · Moderno (corrigido)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+        }
+
+        body {
+            background-color: #0a0a0f;
+            color: #e1e1e6;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #a78bfa, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .theme-toggle {
+            background: #1e1e2a;
+            border: 1px solid #2b2b3a;
+            border-radius: 2rem;
+            padding: 0.3rem;
+            display: flex;
+            gap: 0.3rem;
+        }
+
+        .theme-btn {
+            background: none;
+            border: none;
+            color: #8f8fa3;
+            padding: 0.5rem 1.2rem;
+            border-radius: 2rem;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .theme-btn.active {
+            background: #2b2b3a;
+            color: white;
+        }
+
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #2b2b3a;
+            padding-bottom: 1rem;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: #8f8fa3;
+            padding: 0.7rem 1.5rem;
+            border-radius: 2rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            background: #1e1e2a;
+            color: #e1e1e6;
+        }
+
+        .tab-btn.active {
+            background: #2b2b3a;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0.3; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: #15151e;
+            border: 1px solid #2b2b3a;
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 20px -5px rgba(0,0,0,0.5);
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .explain-box {
+            background: #1e1e2a;
+            border-left: 4px solid #a78bfa;
+            padding: 1rem 1.2rem;
+            border-radius: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: #c4c4d4;
+        }
+
+        .field-group {
+            margin-bottom: 1.2rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 0.3rem;
+            color: #a0a0b0;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            background: #0f0f17;
+            border: 1px solid #2b2b3a;
+            border-radius: 1rem;
+            padding: 0.8rem 1rem;
+            color: white;
+            font-size: 0.95rem;
+            font-family: 'Fira Code', monospace;
+            transition: border 0.2s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #a78bfa;
+        }
+
+        button {
+            background: #2b2b3a;
+            border: none;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        button:hover {
+            background: #3b3b4f;
+            transform: scale(1.02);
+        }
+
+        button.primary {
+            background: linear-gradient(135deg, #a78bfa, #c084fc);
+            color: #0a0a0f;
+        }
+
+        button.primary:hover {
+            filter: brightness(1.1);
+        }
+
+        .hash-display {
+            background: #0f0f17;
+            border-radius: 1rem;
+            padding: 1rem;
+            font-family: 'Fira Code', monospace;
+            word-break: break-all;
+            border: 1px solid #2b2b3a;
+            margin-top: 0.5rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge.success {
+            background: #10b98120;
+            color: #10b981;
+            border: 1px solid #10b98140;
+        }
+
+        .badge.error {
+            background: #ef444420;
+            color: #ef4444;
+            border: 1px solid #ef444440;
+        }
+
+        .node-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .block-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .block-item {
+            background: #1a1a24;
+            border-radius: 1rem;
+            padding: 1rem;
+            border: 1px solid #2b2b3a;
+        }
+
+        .account-card {
+            background: #1a1a24;
+            border-radius: 1rem;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🔗 Blockchain Demo · Aprenda na prática</h1>
+        <div class="theme-toggle">
+            <button class="theme-btn active" id="themeDark">🌙 Escuro</button>
+            <button class="theme-btn" id="themeLight">☀️ Claro</button>
+        </div>
+    </div>
+
+    <div class="tabs" id="tabContainer">
+        <button class="tab-btn active" data-tab="hash">🔷 Hash</button>
+        <button class="tab-btn" data-tab="block">📦 Bloco</button>
+        <button class="tab-btn" data-tab="blockchain">⛓️ Blockchain</button>
+        <button class="tab-btn" data-tab="distributed">🌐 Distribuído</button>
+        <button class="tab-btn" data-tab="tokens">🪙 Tokens</button>
+        <button class="tab-btn" data-tab="coinbase">💰 Coinbase</button>
+    </div>
+
+    <!-- Hash -->
+    <div id="hashTab" class="tab-content active">
+        <div class="card">
+            <div class="card-title">🔷 Função Hash (SHA-256)</div>
+            <div class="explain-box">
+                O Hash é uma "impressão digital" de um dado. Qualquer mudança na entrada gera um hash completamente diferente. É uma função de via única: não é possível voltar do hash para o dado original.
+            </div>
+            <div class="field-group">
+                <label>Digite algo:</label>
+                <input type="text" id="hashInput" placeholder="ex: Olá blockchain" value="Olá mundo">
+            </div>
+            <label>Hash SHA-256:</label>
+            <div class="hash-display" id="hashOutput">...</div>
+            <div style="display: flex; gap:0.5rem; margin-top:1rem">
+                <button class="primary" id="copyHashBtn">📋 Copiar hash</button>
+                <button id="randomHashBtn">🎲 Exemplo aleatório</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bloco -->
+    <div id="blockTab" class="tab-content">
+        <div class="card">
+            <div class="card-title">📦 Bloco com mineração</div>
+            <div class="explain-box">
+                Um bloco contém índice, nonce, dados e hash. O hash é calculado sobre esses campos + hash anterior. Mineração: encontrar nonce que faça o hash começar com "0000" (dificuldade 4).
+            </div>
+            <div style="display: grid; gap:1rem; grid-template-columns: 1fr 1fr">
+                <div class="field-group">
+                    <label>Índice:</label>
+                    <input type="number" id="blockIndex" value="1" min="0">
+                </div>
+                <div class="field-group">
+                    <label>Nonce:</label>
+                    <input type="number" id="blockNonce" value="0" min="0">
+                </div>
+            </div>
+            <div class="field-group">
+                <label>Dados:</label>
+                <textarea id="blockData" rows="2">Transação exemplo</textarea>
+            </div>
+            <div class="field-group">
+                <label>Hash anterior (edite se quiser):</label>
+                <input type="text" id="blockPrevHash" value="0000000000000000000000000000000000000000000000000000000000000000">
+            </div>
+            <label>Hash deste bloco:</label>
+            <div class="hash-display" id="blockHash">calculando...</div>
+            <div style="display: flex; gap:1rem; margin-top:1.5rem">
+                <button class="primary" id="mineBlockBtn">⛏️ Minerar (dificuldade 4 zeros)</button>
+                <button id="updateBlockBtn">🔄 Atualizar hash</button>
+            </div>
+            <p style="margin-top:1rem; font-size:0.9rem; color:#a0a0b0" id="mineStatus"></p>
+        </div>
+    </div>
+
+    <!-- Blockchain -->
+    <div id="blockchainTab" class="tab-content">
+        <div class="card">
+            <div class="card-title">⛓️ Cadeia de blocos</div>
+            <div class="explain-box">
+                Blockchain é uma lista onde cada bloco contém o hash do anterior. Para ser válido, cada bloco deve ter um hash que comece com "0000" (minerado). Editar um bloco quebra a corrente; é necessário minerá-lo novamente.
+            </div>
+            <div id="chainContainer" class="block-list"></div>
+            <div style="display: flex; gap:1rem; margin-top:1.5rem; flex-wrap:wrap">
+                <button class="primary" id="addBlockBtn">➕ Adicionar bloco</button>
+                <button id="validateChainBtn">✅ Validar cadeia</button>
+                <span id="chainStatus" class="badge success" style="margin-left:auto">Válida</span>
+            </div>
+        </div>
+    </div>
+
+<!-- Distribuído -->
+<div id="distributedTab" class="tab-content">
+    <div class="card">
+        <div class="card-title">🌐 Rede distribuída (3 nós independentes)</div>
+        <div class="explain-box">
+            Cada nó possui sua própria blockchain. Você pode adicionar blocos e minerá‑los separadamente.
+            O botão <strong>Sincronizar rede</strong> encontra a cadeia mais longa <strong>totalmente válida</strong> (todos os blocos minerados com "0000" e encadeados) e a copia para todos os nós.
+        </div>
+        <div class="node-grid" id="nodeGrid"></div>
+        <div style="display: flex; gap:1rem; margin-top:2rem; flex-wrap:wrap">
+            <button class="primary" id="syncNetworkBtn">🔄 Sincronizar rede</button>
+            <span id="networkStatus" class="badge success">Nós sincronizados</span>
+        </div>
+    </div>
+</div>
+    <!-- Tokens -->
+    <div id="tokensTab" class="tab-content">
+        <div class="card">
+            <div class="card-title">🪙 Tokens e transações</div>
+            <div class="explain-box">
+                Crie transações entre contas. Elas vão para a mempool. Ao minerar um bloco, as transações pendentes são incluídas e os saldos são atualizados.
+            </div>
+            <div style="display: flex; gap:2rem; flex-wrap:wrap; margin-bottom:2rem">
+                <div class="account-card">
+                    <span>👤 Alice</span>
+                    <span><strong id="balanceAlice">100</strong> tokens</span>
+                </div>
+                <div class="account-card">
+                    <span>👤 Bob</span>
+                    <span><strong id="balanceBob">50</strong> tokens</span>
+                </div>
+                <div class="account-card">
+                    <span>👤 Charlie</span>
+                    <span><strong id="balanceCharlie">25</strong> tokens</span>
+                </div>
+            </div>
+            <div style="background:#1a1a24; border-radius:1rem; padding:1rem; margin-bottom:1.5rem">
+                <h4 style="margin-bottom:1rem">✍️ Nova transação</h4>
+                <div style="display:grid; gap:1rem; grid-template-columns:1fr 1fr 1fr auto">
+                    <select id="txFrom">
+                        <option value="Alice">Alice</option>
+                        <option value="Bob">Bob</option>
+                        <option value="Charlie">Charlie</option>
+                    </select>
+                    <select id="txTo">
+                        <option value="Bob">Bob</option>
+                        <option value="Alice">Alice</option>
+                        <option value="Charlie">Charlie</option>
+                    </select>
+                    <input type="number" id="txAmount" placeholder="Quantia" min="1" value="10">
+                    <button class="primary" id="createTxBtn">Criar</button>
+                </div>
+            </div>
+            <div>
+                <h4>⏳ Transações pendentes (mempool)</h4>
+                <div id="mempoolList" style="background:#0f0f17; border-radius:1rem; padding:1rem; min-height:80px; margin-bottom:1rem"></div>
+                <button class="primary" id="mineTokenBlockBtn">⛏️ Minerar bloco com pendentes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Coinbase -->
+    <div id="coinbaseTab" class="tab-content">
+        <div class="card">
+            <div class="card-title">💰 Coinbase (recompensa de mineração)</div>
+            <div class="explain-box">
+                A transação coinbase é a primeira de um bloco. Ela cria novos tokens como recompensa para o minerador. Aqui você escolhe quem recebe a recompensa ao minerar.
+            </div>
+            <div style="display:flex; gap:2rem; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap">
+                <div>
+                    <label>Recompensa (tokens):</label>
+                    <input type="number" id="coinbaseReward" value="10" min="1" style="width:100px">
+                </div>
+                <div>
+                    <label>Minerador:</label>
+                    <select id="coinbaseMiner">
+                        <option value="Alice">Alice</option>
+                        <option value="Bob">Bob</option>
+                        <option value="Charlie">Charlie</option>
+                    </select>
+                </div>
+            </div>
+            <button class="primary" id="mineCoinbaseBtn">⛏️ Minerar bloco com coinbase</button>
+            <div style="margin-top:1.5rem" id="coinbaseResult"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // SHA-256
+    async function sha256(message) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(message);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    // Tema
+    const themeDark = document.getElementById('themeDark');
+    const themeLight = document.getElementById('themeLight');
+    themeDark.addEventListener('click', () => {
+        document.body.style.backgroundColor = '#0a0a0f';
+        document.body.style.color = '#e1e1e6';
+        themeDark.classList.add('active');
+        themeLight.classList.remove('active');
+    });
+    themeLight.addEventListener('click', () => {
+        document.body.style.backgroundColor = '#f5f5f7';
+        document.body.style.color = '#1e1e2a';
+        themeLight.classList.add('active');
+        themeDark.classList.remove('active');
+    });
+
+    // Abas
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tab = btn.dataset.tab;
+            tabBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            tabContents.forEach(c => c.classList.remove('active'));
+            document.getElementById(tab + 'Tab').classList.add('active');
+        });
+    });
+
+    // ----- HASH -----
+    const hashInput = document.getElementById('hashInput');
+    const hashOutput = document.getElementById('hashOutput');
+    async function updateHash() {
+        const text = hashInput.value || '';
+        hashOutput.textContent = text ? await sha256(text) : '(vazio)';
+    }
+    hashInput.addEventListener('input', updateHash);
+    updateHash();
+
+    document.getElementById('copyHashBtn').addEventListener('click', () => {
+        navigator.clipboard.writeText(hashOutput.textContent);
+        alert('Hash copiado!');
+    });
+    document.getElementById('randomHashBtn').addEventListener('click', () => {
+        const random = 'exemplo ' + Math.random().toString(36).substring(2);
+        hashInput.value = random;
+        updateHash();
+    });
+
+    // ----- BLOCO -----
+    const blockIndex = document.getElementById('blockIndex');
+    const blockNonce = document.getElementById('blockNonce');
+    const blockData = document.getElementById('blockData');
+    const blockPrevHash = document.getElementById('blockPrevHash');
+    const blockHash = document.getElementById('blockHash');
+    const mineStatus = document.getElementById('mineStatus');
+
+    async function calculateBlockHash() {
+        const index = blockIndex.value;
+        const nonce = blockNonce.value;
+        const data = blockData.value;
+        const prev = blockPrevHash.value;
+        return await sha256(index + nonce + data + prev);
+    }
+
+    async function updateBlockHash() {
+        blockHash.textContent = await calculateBlockHash();
+    }
+
+    blockIndex.addEventListener('input', updateBlockHash);
+    blockNonce.addEventListener('input', updateBlockHash);
+    blockData.addEventListener('input', updateBlockHash);
+    blockPrevHash.addEventListener('input', updateBlockHash);
+    updateBlockHash();
+
+    document.getElementById('updateBlockBtn').addEventListener('click', updateBlockHash);
+
+    document.getElementById('mineBlockBtn').addEventListener('click', async () => {
+        mineStatus.textContent = '⛏️ Minerando...';
+        const targetPrefix = '0000';
+        let nonce = 0;
+        const index = blockIndex.value;
+        const data = blockData.value;
+        const prev = blockPrevHash.value;
+        let hash = '';
+        const startTime = Date.now();
+        const MAX_ATTEMPTS = 10_000_000;
+        while (nonce < MAX_ATTEMPTS) {
+            hash = await sha256(index + nonce + data + prev);
+            if (hash.startsWith(targetPrefix)) break;
+            nonce++;
+            if (nonce % 100000 === 0) {
+                mineStatus.textContent = `⛏️ Minerando... tentativa ${nonce}`;
+                await new Promise(resolve => setTimeout(resolve, 0));
+            }
+        }
+        if (nonce >= MAX_ATTEMPTS) {
+            mineStatus.textContent = '❌ Limite de tentativas excedido. Tente novamente ou ajuste a dificuldade.';
+            return;
+        }
+        blockNonce.value = nonce;
+        blockHash.textContent = hash;
+        mineStatus.textContent = `✅ Minerado com nonce ${nonce} em ${((Date.now()-startTime)/1000).toFixed(2)}s`;
+    });
+
+    // ----- BLOCKCHAIN (corrigida) -----
+    let chain = [
+        { index: 0, nonce: 0, data: 'Bloco gênese', prevHash: '0'.repeat(64), hash: '' }
+    ];
+
+    async function computeBlockHash(block) {
+        return await sha256(block.index + block.nonce + block.data + block.prevHash);
+    }
+
+    async function initGenesis() {
+        const genesis = chain[0];
+        genesis.hash = await computeBlockHash(genesis);
+    }
+    initGenesis();
+
+    const chainContainer = document.getElementById('chainContainer');
+    const chainStatusSpan = document.getElementById('chainStatus');
+
+    async function renderChain() {
+        let html = '';
+        for (let i = 0; i < chain.length; i++) {
+            const b = chain[i];
+            // calcula o hash atual (pode ser diferente do armazenado se dados/nonce mudaram)
+            const currentHash = await computeBlockHash(b);
+            // verifica se o hash começa com 0000 (minerado)
+            const isMined = currentHash.startsWith('0000');
+            // verifica encadeamento (para blocos após o gênese)
+            let chainValid = true;
+            if (i > 0) {
+                const prevHash = chain[i-1].hash; // usamos o hash armazenado do anterior? Mas se anterior foi editado, seu hash armazenado pode estar desatualizado. Melhor usar o hash calculado na hora do anterior?
+                // Para consistência, vamos usar o hash armazenado, mas se o anterior foi editado, seu hash armazenado pode ser antigo.
+                // Vamos calcular o hash atual do anterior também para validação de encadeamento.
+                const prevCurrentHash = await computeBlockHash(chain[i-1]);
+                chainValid = (b.prevHash === prevCurrentHash);
+            }
+            const isValid = isMined && chainValid;
+
+            html += `<div class="block-item" data-index="${i}">
+                <div style="display:flex; gap:1rem; align-items:center; flex-wrap:wrap">
+                    <span style="font-weight:600">Bloco #${b.index}</span>
+                    <span class="badge ${isValid ? 'success' : 'error'}">${isValid ? '✅ válido' : '❌ inválido'}</span>
+                </div>
+                <div style="margin-top:0.5rem; font-family:'Fira Code'; font-size:0.8rem">
+                    <div>nonce: ${b.nonce}</div>
+                    <div>dados: "${b.data}"</div>
+                    <div style="word-break:break-all">hash ant: ${b.prevHash}</div>
+                    <div style="word-break:break-all">hash atual: ${currentHash}</div>
+                </div>
+                <div style="display:flex; gap:0.5rem; margin-top:0.8rem; flex-wrap:wrap">
+                    <button class="editBlockBtn" data-index="${i}" style="padding:0.3rem 1rem">✏️ Editar dados</button>
+                    <button class="mineBlockBtn" data-index="${i}" style="padding:0.3rem 1rem; background:#2b5f2b">⛏️ Minerar</button>
+                </div>
+            </div>`;
+        }
+        chainContainer.innerHTML = html;
+
+        // Evento de editar
+        document.querySelectorAll('.editBlockBtn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const idx = e.target.dataset.index;
+                const newData = prompt('Novos dados para o bloco:', chain[idx].data);
+                if (newData !== null) {
+                    chain[idx].data = newData;
+                    chain[idx].nonce = 0; // reseta nonce para forçar mineração
+                    // Não recalculamos hash aqui; será feito no renderChain
+                    await renderChain();
+                }
+            });
+        });
+
+        // Evento de minerar
+        document.querySelectorAll('.mineBlockBtn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const idx = e.target.dataset.index;
+                const block = chain[idx];
+                // mineração: encontrar nonce que faça o hash começar com 0000
+                const targetPrefix = '0000';
+                let nonce = 0;
+                const index = block.index;
+                const data = block.data;
+                const prev = block.prevHash;
+                let hash = '';
+                const MAX_ATTEMPTS = 5_000_000;
+                while (nonce < MAX_ATTEMPTS) {
+                    hash = await sha256(index + nonce + data + prev);
+                    if (hash.startsWith(targetPrefix)) break;
+                    nonce++;
+                }
+                if (nonce >= MAX_ATTEMPTS) {
+                    alert('Não foi possível minerar este bloco (limite de tentativas).');
+                    return;
+                }
+                block.nonce = nonce;
+                // Atualiza o hash armazenado? Vamos armazenar o hash minerado para referência, mas o renderChain recalcula.
+                // Podemos armazenar para agilizar, mas não é obrigatório.
+                block.hash = hash;
+                await renderChain();
+            });
+        });
+
+        await validateChainUI();
+    }
+
+    async function validateChainUI() {
+        let allValid = true;
+        for (let i = 0; i < chain.length; i++) {
+            const b = chain[i];
+            const currentHash = await computeBlockHash(b);
+            const isMined = currentHash.startsWith('0000');
+            let chainValid = true;
+            if (i > 0) {
+                const prevCurrentHash = await computeBlockHash(chain[i-1]);
+                chainValid = (b.prevHash === prevCurrentHash);
+            }
+            if (!isMined || !chainValid) allValid = false;
+        }
+        chainStatusSpan.textContent = allValid ? '✅ Válida' : '❌ Inválida';
+        chainStatusSpan.className = allValid ? 'badge success' : 'badge error';
+    }
+
+    document.getElementById('addBlockBtn').addEventListener('click', async () => {
+        const last = chain[chain.length-1];
+        const lastCurrentHash = await computeBlockHash(last);
+        const newBlock = {
+            index: chain.length,
+            nonce: 0,
+            data: 'Novo bloco',
+            prevHash: lastCurrentHash, // usa o hash atual do último bloco
+            hash: ''
+        };
+        chain.push(newBlock);
+        renderChain();
+    });
+
+    document.getElementById('validateChainBtn').addEventListener('click', validateChainUI);
+    renderChain();
+
+   // ----- DISTRIBUÍDO REFATORADO (nós independentes) -----
+// Função para criar um nó com o bloco gênese já minerado (hash começa com "0000")
+async function createNodeWithGenesis() {
+    const genesis = {
+        index: 0,
+        nonce: 0,
+        data: 'Bloco gênese',
+        prevHash: '0'.repeat(64),
+        hash: ''
+    };
+    const targetPrefix = '0000';
+    let nonce = 0;
+    let hash;
+    const MAX_ATTEMPTS = 5_000_000;
+    while (nonce < MAX_ATTEMPTS) {
+        hash = await sha256(genesis.index + nonce + genesis.data + genesis.prevHash);
+        if (hash.startsWith(targetPrefix)) break;
+        nonce++;
+    }
+    genesis.nonce = nonce;
+    genesis.hash = hash;
+    return [genesis]; // retorna a cadeia com um bloco
+}
+
+// Inicializa os três nós com gêneses minerados (cada um independente)
+let nodeA, nodeB, nodeC;
+(async () => {
+    nodeA = await createNodeWithGenesis();
+    nodeB = await createNodeWithGenesis();
+    nodeC = await createNodeWithGenesis();
+    renderNodes();
+})();
+
+const nodeGrid = document.getElementById('nodeGrid');
+const networkStatus = document.getElementById('networkStatus');
+
+// Função para renderizar os três nós com seus controles
+async function renderNodes() {
+    const nodes = [nodeA, nodeB, nodeC];
+    const names = ['Nó A', 'Nó B', 'Nó C'];
+    let html = '';
+
+    for (let n = 0; n < 3; n++) {
+        const chain = nodes[n];
+        // Verifica validade de cada bloco e da cadeia inteira
+        let chainValid = true;
+        const blocksHtml = [];
+
+        for (let i = 0; i < chain.length; i++) {
+            const b = chain[i];
+            const currentHash = await computeBlockHash(b);
+            const isMined = currentHash.startsWith('0000');
+            let linkValid = true;
+            if (i > 0) {
+                const prevCurrentHash = await computeBlockHash(chain[i-1]);
+                linkValid = (b.prevHash === prevCurrentHash);
+            }
+            const blockValid = isMined && linkValid;
+            if (!blockValid) chainValid = false;
+
+            blocksHtml.push(`
+                <div style="border-bottom:1px solid #2b2b3a; padding:0.5rem 0; font-size:0.8rem">
+                    <div><strong>#${b.index}</strong> nonce:${b.nonce} dados:"${b.data.substring(0,15)}${b.data.length>15?'…':''}"</div>
+                    <div style="word-break:break-all; color:#a0a0b0">hash: ${currentHash.substring(0,20)}…</div>
+                    <span class="badge ${blockValid ? 'success' : 'error'}" style="font-size:0.7rem">${blockValid ? 'válido' : 'inválido'}</span>
+                </div>
+            `);
+        }
+
+        html += `
+            <div class="card" style="padding:1rem; display:flex; flex-direction:column; gap:0.5rem">
+                <div style="display:flex; justify-content:space-between; align-items:center">
+                    <h4>${names[n]}</h4>
+                    <span class="badge ${chainValid ? 'success' : 'error'}">${chainValid ? 'cadeia válida' : 'inválida'}</span>
+                </div>
+                <div style="max-height:250px; overflow-y:auto; background:#0f0f17; border-radius:0.8rem; padding:0.5rem">
+                    ${blocksHtml.join('')}
+                </div>
+                <div style="display:flex; gap:0.5rem; margin-top:0.5rem">
+                    <button class="addNodeBlockBtn" data-node="${n}" style="flex:1; padding:0.4rem">➕ Add bloco</button>
+                    <button class="mineNodeBlockBtn" data-node="${n}" style="flex:1; padding:0.4rem; background:#2b5f2b">⛏️ Minerar último</button>
+                    <button class="tamperNodeBtn" data-node="${n}" style="flex:1; padding:0.4rem; background:#7f1d1d">⚠️ Adulterar</button>
+                </div>
+            </div>
+        `;
+    }
+
+    nodeGrid.innerHTML = html;
+
+    // Evento: Adicionar bloco ao nó (não minerado, nonce=0)
+    document.querySelectorAll('.addNodeBlockBtn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            const nodeIdx = e.target.dataset.node;
+            const node = [nodeA, nodeB, nodeC][nodeIdx];
+            const last = node[node.length-1];
+            const lastCurrentHash = await computeBlockHash(last);
+            const newData = prompt('Dados do novo bloco:', 'novo bloco') || 'vazio';
+            const newBlock = {
+                index: node.length,
+                nonce: 0,
+                data: newData,
+                prevHash: lastCurrentHash,
+                hash: ''
+            };
+            node.push(newBlock);
+            renderNodes();
+        });
+    });
+
+    // Evento: Minerar o último bloco do nó (encontrar nonce com "0000")
+    document.querySelectorAll('.mineNodeBlockBtn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            const nodeIdx = e.target.dataset.node;
+            const node = [nodeA, nodeB, nodeC][nodeIdx];
+            if (node.length === 0) return;
+            const block = node[node.length-1];
+            const targetPrefix = '0000';
+            let nonce = 0;
+            const index = block.index;
+            const data = block.data;
+            const prev = block.prevHash;
+            let hash;
+            const MAX_ATTEMPTS = 5_000_000;
+            while (nonce < MAX_ATTEMPTS) {
+                hash = await sha256(index + nonce + data + prev);
+                if (hash.startsWith(targetPrefix)) break;
+                nonce++;
+            }
+            if (nonce >= MAX_ATTEMPTS) {
+                alert('Mineração falhou (limite de tentativas).');
+                return;
+            }
+            block.nonce = nonce;
+            block.hash = hash; // opcional
+            renderNodes();
+        });
+    });
+
+    // Evento: Adulterar (altera dados do último bloco, quebrando a cadeia)
+    document.querySelectorAll('.tamperNodeBtn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const nodeIdx = e.target.dataset.node;
+            const node = [nodeA, nodeB, nodeC][nodeIdx];
+            if (node.length > 0) {
+                const last = node[node.length-1];
+                last.data = '**ADULTERADO**';
+                renderNodes();
+            }
+        });
+    });
+
+    // Atualiza status da rede (compara se todos os nós são exatamente iguais)
+    const chainsEqual = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+    if (nodeA && nodeB && nodeC && chainsEqual(nodeA, nodeB) && chainsEqual(nodeB, nodeC)) {
+        networkStatus.textContent = '✅ Nós idênticos';
+        networkStatus.className = 'badge success';
+    } else {
+        networkStatus.textContent = '⚠️ Nós divergentes';
+        networkStatus.className = 'badge error';
+    }
+}
+
+// Sincronização: encontra a cadeia mais longa totalmente válida e copia para todos
+document.getElementById('syncNetworkBtn').addEventListener('click', async () => {
+    const nodes = [nodeA, nodeB, nodeC];
+    let bestChain = null;
+    let bestLen = 0;
+
+    for (let chain of nodes) {
+        let valid = true;
+        for (let i = 0; i < chain.length; i++) {
+            const currentHash = await computeBlockHash(chain[i]);
+            const isMined = currentHash.startsWith('0000');
+            let linkValid = true;
+            if (i > 0) {
+                const prevCurrentHash = await computeBlockHash(chain[i-1]);
+                linkValid = (chain[i].prevHash === prevCurrentHash);
+            }
+            if (!isMined || !linkValid) {
+                valid = false;
+                break;
+            }
+        }
+        if (valid && chain.length > bestLen) {
+            bestLen = chain.length;
+            bestChain = chain;
+        }
+    }
+
+    if (bestChain) {
+        // Cria cópias profundas para cada nó (independência)
+        nodeA = JSON.parse(JSON.stringify(bestChain));
+        nodeB = JSON.parse(JSON.stringify(bestChain));
+        nodeC = JSON.parse(JSON.stringify(bestChain));
+        networkStatus.textContent = '✅ Rede sincronizada';
+        networkStatus.className = 'badge success';
+    } else {
+        networkStatus.textContent = '❌ Nenhuma cadeia válida encontrada';
+        networkStatus.className = 'badge error';
+    }
+    renderNodes();
+});
+
+// A renderização inicial já foi chamada dentro da IIFE assíncrona
+
+    // ----- TOKENS -----
+    let balances = { Alice: 100, Bob: 50, Charlie: 25 };
+    let mempool = [];
+
+    function updateBalancesUI() {
+        document.getElementById('balanceAlice').textContent = balances.Alice;
+        document.getElementById('balanceBob').textContent = balances.Bob;
+        document.getElementById('balanceCharlie').textContent = balances.Charlie;
+    }
+
+    function renderMempool() {
+        const list = document.getElementById('mempoolList');
+        if (mempool.length === 0) {
+            list.innerHTML = '<span style="color:#8f8fa3">Nenhuma transação pendente</span>';
+            return;
+        }
+        list.innerHTML = mempool.map(tx => `<div style="padding:0.2rem 0">↔️ ${tx.from} → ${tx.to} : ${tx.amount} tokens</div>`).join('');
+    }
+
+    document.getElementById('createTxBtn').addEventListener('click', () => {
+        const from = document.getElementById('txFrom').value;
+        const to = document.getElementById('txTo').value;
+        const amount = parseInt(document.getElementById('txAmount').value);
+        if (from === to) { alert('Origem e destino devem ser diferentes'); return; }
+        if (amount <= 0) { alert('Quantia inválida'); return; }
+        if (balances[from] < amount) { alert('Saldo insuficiente'); return; }
+        mempool.push({ from, to, amount });
+        renderMempool();
+    });
+
+    document.getElementById('mineTokenBlockBtn').addEventListener('click', async () => {
+        if (mempool.length === 0) { alert('Nenhuma transação pendente'); return; }
+        for (let tx of mempool) {
+            if (balances[tx.from] >= tx.amount) {
+                balances[tx.from] -= tx.amount;
+                balances[tx.to] += tx.amount;
+            }
+        }
+        mempool = [];
+        updateBalancesUI();
+        renderMempool();
+    });
+
+    // ----- COINBASE -----
+    document.getElementById('mineCoinbaseBtn').addEventListener('click', () => {
+        const miner = document.getElementById('coinbaseMiner').value;
+        const reward = parseInt(document.getElementById('coinbaseReward').value);
+        balances[miner] += reward;
+        updateBalancesUI();
+        document.getElementById('coinbaseResult').innerHTML = `<span class="badge success">✅ Recompensa de ${reward} tokens adicionada a ${miner}</span>`;
+    });
+
+    updateBalancesUI();
+    renderMempool();
+</script>
+</body>
+</html>
